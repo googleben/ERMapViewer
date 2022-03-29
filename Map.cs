@@ -24,101 +24,14 @@ namespace ERMapViewer
             HashSet<string> pieceNames = new();
             Program.progress.TaskName = "Reading placements";
             Program.progress.CurrentIndex = 0;
-            Program.progress.MaxIndex = msb.Parts.Unk1s.Count + msb.Parts.MapPieces.Count + msb.Parts.Objects.Count;
-            foreach (var p in msb.Parts.MapPieces) {
-                //MapModel geom;
-                if (Regex.IsMatch(p.Name, @"^m\d\d\d\d\d\d")) {
-                    pieceNames.Add(p.Name[..7]);
-                    //if (!geometry.TryGetValue(p.Name[..7], out geom!)) continue;
-                } else if (Regex.IsMatch(p.ModelName, @"^m\d\d\d\d\d\d\d\d")) {
-                    pieceNames.Add(p.ModelName[..9]);
-                } else if (Regex.IsMatch(p.Name, @"^AEG\d\d\d_\d\d\d")) {
-                    pieceNames.Add(p.Name[..10]);
-                    //if (!geometry.TryGetValue(p.Name[..10], out geom!)) continue;
-                } else {
-                    var m = Regex.Match(p.Name, @".*(AEG\d\d\d_\d\d\d).*");
-                    if (m.Success) {
-                        pieceNames.Add(m.Groups[1].Value);
-                    } else continue;
-                }
-                //pieceNames.Add(p.Name);
-                //placements.Add(new MapModelPlacement(geom, VecToXna(p.Position), VecToXna(p.Rotation), VecToXna(p.Scale)));
-                Program.progress.CurrentIndex++;
-            }
-            foreach (var p in msb.Parts.Objects) {
-                //MapModel geom;
-                if (Regex.IsMatch(p.Name, @"^m\d\d\d\d\d\d")) {
-                    pieceNames.Add(p.Name[..7]);
-                    //if (!geometry.TryGetValue(p.Name[..7], out geom!)) continue;
-                } else if (Regex.IsMatch(p.Name, @"^AEG\d\d\d_\d\d\d")) {
-                    pieceNames.Add(p.Name[..10]);
-                    //if (!geometry.TryGetValue(p.Name[..10], out geom!)) continue;
-                } else if (Regex.IsMatch(p.ModelName, @"^m\d\d\d\d\d\d\d\d")) {
-                    pieceNames.Add(p.ModelName[..9]);
-                } else {
-                    var m = Regex.Match(p.Name, @".*(AEG\d\d\d_\d\d\d).*");
-                    if (m.Success) {
-                        pieceNames.Add(m.Groups[1].Value);
-                    } else continue;
-                }
-                //placements.Add(new MapModelPlacement(geom, VecToXna(p.Position), VecToXna(p.Rotation), VecToXna(p.Scale)));
-                Program.progress.CurrentIndex++;
-            }
-            foreach (var p in msb.Parts.Collisions) {
-                //MapModel geom;
-                if (Regex.IsMatch(p.Name, @"^m\d\d\d\d\d\d")) {
-                    pieceNames.Add(p.Name[..7]);
-                    //if (!geometry.TryGetValue(p.Name[..7], out geom!)) continue;
-                } else if (Regex.IsMatch(p.Name, @"^AEG\d\d\d_\d\d\d")) {
-                    pieceNames.Add(p.Name[..10]);
-                    //if (!geometry.TryGetValue(p.Name[..10], out geom!)) continue;
-                } else if (Regex.IsMatch(p.ModelName, @"^m\d\d\d\d\d\d\d\d")) {
-                    pieceNames.Add(p.ModelName[..9]);
-                } else {
-                    var m = Regex.Match(p.Name, @".*(AEG\d\d\d_\d\d\d).*");
-                    if (m.Success) {
-                        pieceNames.Add(m.Groups[1].Value);
-                    } else continue;
-                }
-                //placements.Add(new MapModelPlacement(geom, VecToXna(p.Position), VecToXna(p.Rotation), VecToXna(p.Scale)));
-                Program.progress.CurrentIndex++;
-            }
-            foreach (var p in msb.Parts.ConnectCollisions) {
-                //MapModel geom;
-                if (Regex.IsMatch(p.Name, @"^m\d\d\d\d\d\d")) {
-                    pieceNames.Add(p.Name[..7]);
-                    //if (!geometry.TryGetValue(p.Name[..7], out geom!)) continue;
-                } else if (Regex.IsMatch(p.Name, @"^AEG\d\d\d_\d\d\d")) {
-                    pieceNames.Add(p.Name[..10]);
-                    //if (!geometry.TryGetValue(p.Name[..10], out geom!)) continue;
-                } else if (Regex.IsMatch(p.ModelName, @"^m\d\d\d\d\d\d\d\d")) {
-                    pieceNames.Add(p.ModelName[..9]);
-                } else {
-                    var m = Regex.Match(p.Name, @".*(AEG\d\d\d_\d\d\d).*");
-                    if (m.Success) {
-                        pieceNames.Add(m.Groups[1].Value);
-                    } else continue;
-                }
-                //placements.Add(new MapModelPlacement(geom, VecToXna(p.Position), VecToXna(p.Rotation), VecToXna(p.Scale)));
-                Program.progress.CurrentIndex++;
-            }
-            foreach (var p in msb.Parts.Unk1s) {
-                //MapModel geom;
-                if (Regex.IsMatch(p.Name, @"^m\d\d\d\d\d\d")) {
-                    pieceNames.Add(p.Name[..7]);
-                    //if (!geometry.TryGetValue(p.Name[..7], out geom!)) continue;
-                } else if (Regex.IsMatch(p.Name, @"^AEG\d\d\d_\d\d\d")) {
-                    pieceNames.Add(p.Name[..10]);
-                    //if (!geometry.TryGetValue(p.Name[..10], out geom!)) continue;
-                } else if (Regex.IsMatch(p.Name, @"^m\d\d\d\d\d\d\d\d")) {
-                    pieceNames.Add(p.Name[..9]);
-                } else {
-                    var m = Regex.Match(p.Name, @".*(AEG\d\d\d_\d\d\d).*");
-                    if (m.Success) {
-                        pieceNames.Add(m.Groups[1].Value);
-                    } else continue;
-                }
-                //placements.Add(new MapModelPlacement(geom, VecToXna(p.Position), VecToXna(p.Rotation), VecToXna(p.Scale)));
+            List<MSBE.Part> parts = new(msb.Parts.MapPieces);
+            parts.AddRange(msb.Parts.Objects);
+            parts.AddRange(msb.Parts.Collisions);
+            parts.AddRange(msb.Parts.ConnectCollisions);
+            parts.AddRange(msb.Parts.Unk1s);
+            Program.progress.MaxIndex = parts.Count;
+            foreach (var part in parts) {
+                pieceNames.Add(part.ModelName);
                 Program.progress.CurrentIndex++;
             }
             Program.progress.TaskName = "Loading map geometry";
@@ -137,7 +50,7 @@ namespace ERMapViewer
                 var fileName = Path.Combine(mapGeomFolder, firstPart, fullName, "Model", fullName+".flver");
                 if (!File.Exists(fileName)) continue;
                 var flver = FLVER2.Read(fileName);
-                geometry[mp.Name] = new MapModel(flver);
+                geometry[mp.Name] = new MapModel(flver, fileName);
                 Program.progress.CurrentIndex++;
             }
             string geomFolder = Path.Combine(exFolder, "data1", "asset", "aeg");
@@ -152,7 +65,7 @@ namespace ERMapViewer
                 if (!File.Exists(fileName)) continue;
                 try {
                     var flver = FLVER2.Read(fileName);
-                    geometry[g.Name] = new MapModel(flver);
+                    geometry[g.Name] = new MapModel(flver, fileName);
                 } catch {
                     Debug.WriteLine($"Couldn't read flver {fileName}");
                 }
@@ -161,8 +74,15 @@ namespace ERMapViewer
             placements = new List<MapModelPlacement>();
             Program.progress.TaskName = "Loading placements";
             Program.progress.CurrentIndex = 0;
-            Program.progress.MaxIndex = msb.Parts.Unk1s.Count + msb.Parts.MapPieces.Count + msb.Parts.Objects.Count;
-            foreach (var p in msb.Parts.MapPieces) {
+            Program.progress.MaxIndex = parts.Count;
+            foreach (var p in parts) {
+                MapModel geom;
+                Program.progress.CurrentIndex++;
+                if (!geometry.TryGetValue(p.ModelName, out geom!)) continue;
+                var placement = new MapModelPlacement(geom, VecToXna(p.Position), VecToXna(p.Rotation), VecToXna(p.Scale), p.Name);
+                placements.Add(placement);
+            }
+            /*foreach (var p in msb.Parts.MapPieces) {
                 MapModel geom;
                 if (Regex.IsMatch(p.Name, @"^m\d\d\d\d\d\d")) {
                     if (!geometry.TryGetValue(p.Name[..7], out geom!)) continue;
@@ -257,7 +177,7 @@ namespace ERMapViewer
                 };
                 placements.Add(new MapModelPlacement(geom, VecToXna(p.Position), VecToXna(p.Rotation), VecToXna(p.Scale)));
                 Program.progress.CurrentIndex++;
-            }
+            }*/
             Program.progress.Finish();
         }
 

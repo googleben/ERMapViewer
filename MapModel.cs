@@ -9,34 +9,82 @@ using System.Threading.Tasks;
 
 namespace ERMapViewer
 {
-    internal class MapModel
+    internal class MapMesh
     {
         public VertexPositionNormalTexture[] triangleList;
-        //public VertexPosition[] lineList;
         public int numTriangles;
+        public MapMesh(VertexPositionNormalTexture[] triangleList, int numTriangles)
+        {
+            this.triangleList = triangleList;
+            this.numTriangles = numTriangles;
+        }
+    }
+    internal class MapModel
+    {
         public Vector3 bbMin;
         public Vector3 bbMax;
-        public MapModel(FLVER2 flver)
+        public BoundingBox bb;
+        public string name;
+        public MapMesh lodMax;
+        public MapMesh lodMed;
+        public MapMesh lodMin;
+        public float lodMaxDist;
+        public float lodMedDist;
+        public MapModel(FLVER2 flver, string name)
         {
+            this.name = name;
             var tmp = flver.Header.BoundingBoxMin;
             bbMin = new Vector3(tmp.X, tmp.Y, tmp.Z);
             tmp = flver.Header.BoundingBoxMax;
             bbMax = new Vector3(tmp.X, tmp.Y, tmp.Z);
-            List<VertexPositionNormalTexture> ans = new();
+            bb = new BoundingBox(bbMin, bbMax);
+            List<VertexPositionNormalTexture> lodMaxAns = new();
+            int lodMaxTris = 0;
+            List<VertexPositionNormalTexture> lodMedAns = new();
+            int lodMedTris = 0;
+            List<VertexPositionNormalTexture> lodMinAns = new();
+            int lodMinTris = 0;
             //HashSet<(VertexPosition a, VertexPosition b)> lines = new();
             foreach (var mesh in flver.Meshes) {
-                foreach (var tri in mesh.GetFaces()) {
-                    
-                    numTriangles++;
-                    var asXna = tri.Select(VertToXna).ToArray();
-                    ans.AddRange(asXna);
-                    //lines.Add((asXna[0], asXna[1]));
-                    //lines.Add((asXna[1], asXna[2]));
-                    //lines.Add((asXna[2], asXna[0]));
+                var verts = mesh.Vertices;
+                foreach (var faceSet in mesh.FaceSets) {
+                    List<VertexPositionNormalTexture> ans = lodMaxAns;
+                    ref int tris = ref lodMaxTris;
+                    if (faceSet.Flags.HasFlag(FLVER2.FaceSet.FSFlags.LodLevel2)) {
+                        ans = lodMinAns;
+                        tris = ref lodMinTris;
+                    } else if (faceSet.Flags.HasFlag(FLVER2.FaceSet.FSFlags.LodLevel1)) {
+                        ans = lodMedAns;
+                        tris = ref lodMedTris;
+                    }
+                    var triList = faceSet.Triangulate(true);
+                    for (int i = 0; i < triList.Count - 2; i+=3) {
+                        tris++;
+                        ans.Add(VertToXna(verts[triList[i]]));
+                        ans.Add(VertToXna(verts[triList[i+1]]));
+                        ans.Add(VertToXna(verts[triList[i+2]]));
+                    }
                 }
             }
-            triangleList = ans.ToArray();
-            //lineList = lines.SelectMany(l => new VertexPosition[] {l.a, l.b}).ToArray();
+            lodMin = new MapMesh(lodMinAns.ToArray(), lodMinTris);
+            lodMed = new MapMesh(lodMedAns.ToArray(), lodMedTris);
+            lodMax = new MapMesh(lodMaxAns.ToArray(), lodMaxTris);
+            float bbDiag = (bbMax - bbMin).Length();
+            if (lodMinTris == 0) lodMedDist = float.PositiveInfinity;
+            else lodMedDist = bbDiag * 5;
+            if (lodMedTris == 0) lodMaxDist = lodMedDist;
+            else lodMaxDist = bbDiag * 3;
+            if (lodMaxTris == 0) lodMaxDist = 0;
+            if (lodMedTris == 0 && lodMaxTris == 0) lodMedDist = 0;
+        }
+
+        public MapMesh GetLod(float cameraDistance)
+        {
+            if (cameraDistance < lodMedDist) {
+                if (cameraDistance < lodMaxDist) {
+                    return lodMax;
+                } else return lodMed;
+            } else return lodMin;
         }
 
         public static VertexPositionNormalTexture VertToXna(FLVER.Vertex v)
