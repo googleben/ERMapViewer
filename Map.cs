@@ -15,6 +15,7 @@ namespace ERMapViewer
         public Dictionary<string, MapModel> geometry;
         public MSBE msb;
         public List<MapModelPlacement> placements;
+        public List<MapRegion> regions;
 
         public Map(string exFolder, MSBE msb)
         {
@@ -78,112 +79,30 @@ namespace ERMapViewer
             foreach (var p in parts) {
                 MapModel geom;
                 Program.progress.CurrentIndex++;
+                if (p.ModelName == null) continue;
                 if (!geometry.TryGetValue(p.ModelName, out geom!)) continue;
                 var placement = new MapModelPlacement(geom, VecToXna(p.Position), VecToXna(p.Rotation), VecToXna(p.Scale), p.Name);
                 placements.Add(placement);
             }
-            /*foreach (var p in msb.Parts.MapPieces) {
-                MapModel geom;
-                if (Regex.IsMatch(p.Name, @"^m\d\d\d\d\d\d")) {
-                    if (!geometry.TryGetValue(p.Name[..7], out geom!)) continue;
-                } else if (Regex.IsMatch(p.Name, @"^AEG\d\d\d_\d\d\d")) {
-                    if (!geometry.TryGetValue(p.Name[..10], out geom!)) continue;
-                } else if (Regex.IsMatch(p.ModelName, @"^m\d\d\d\d\d\d\d\d")) {
-                    if (!geometry.TryGetValue(p.ModelName[..9], out geom!)) continue;
-                } else {
-                    var m = Regex.Match(p.Name, @".*(AEG\d\d\d_\d\d\d).*");
-                    if (m.Success) {
-                        if (!geometry.TryGetValue(m.Groups[1].Value, out geom!)) continue;
-                    } else continue;
-                };
-                var placement = new MapModelPlacement(geom, VecToXna(p.Position), VecToXna(p.Rotation), VecToXna(p.Scale));
-                //if (p.ModelName.StartsWith("m")) placement.transform = Matrix.CreateTranslation(new Vector3(geom.bbMin.X, p.Position.Y-geom.bbMax.Y, -geom.bbMax.Z));
-                placements.Add(placement);
-                Program.progress.CurrentIndex++;
+            Program.progress.TaskName = "Loading regions";
+            Program.progress.CurrentIndex = 0;
+            var regionList = msb.Regions.GetEntries();
+            Program.progress.MaxIndex = regionList.Count;
+            regions = new List<MapRegion>(regionList.Count);
+            foreach (var r in regionList) {
+                regions.Add(new MapRegion(r, regionList));
             }
-            foreach (var p in msb.Parts.Objects) {
-                MapModel geom;
-                if (Regex.IsMatch(p.Name, @"^m\d\d\d\d\d\d")) {
-                    if (!geometry.TryGetValue(p.Name[..7], out geom!)) continue;
-                } else if (Regex.IsMatch(p.Name, @"^AEG\d\d\d_\d\d\d")) {
-                    if (!geometry.TryGetValue(p.Name[..10], out geom!)) continue;
-                } else if (Regex.IsMatch(p.ModelName, @"^m\d\d\d\d\d\d\d\d")) {
-                    if (!geometry.TryGetValue(p.ModelName[..9], out geom!)) continue;
-                } else {
-                    var m = Regex.Match(p.Name, @".*(AEG\d\d\d_\d\d\d).*");
-                    if (m.Success) {
-                        if (!geometry.TryGetValue(m.Groups[1].Value, out geom!)) continue;
-                    } else continue;
-                };
-                var placement = new MapModelPlacement(geom, VecToXna(p.Position), VecToXna(p.Rotation), VecToXna(p.Scale)); 
-                if (p.ModelName.StartsWith("m")) placement.transform = Matrix.CreateTranslation(new Vector3(geom.bbMin.X, p.Position.Y - geom.bbMin.Y, -geom.bbMax.Z));
-                //placement.transform = Matrix.CreateTranslation(new Vector3(p.Position.X + 28, 0, p.Position.Z - 58));// * Matrix.CreateRotationX(-3*MathHelper.ToRadians(p.Rotation.Y));
-                placements.Add(placement);
-                Program.progress.CurrentIndex++;
-            }
-            foreach (var p in msb.Parts.Collisions) {
-                MapModel geom;
-                if (Regex.IsMatch(p.Name, @"^m\d\d\d\d\d\d")) {
-                    if (!geometry.TryGetValue(p.Name[..7], out geom!)) continue;
-                } else if (Regex.IsMatch(p.Name, @"^AEG\d\d\d_\d\d\d")) {
-                    if (!geometry.TryGetValue(p.Name[..10], out geom!)) continue;
-                } else if (Regex.IsMatch(p.ModelName, @"^m\d\d\d\d\d\d\d\d")) {
-                    if (!geometry.TryGetValue(p.ModelName[..9], out geom!)) continue;
-                } else {
-                    var m = Regex.Match(p.Name, @".*(AEG\d\d\d_\d\d\d).*");
-                    if (m.Success) {
-                        if (!geometry.TryGetValue(m.Groups[1].Value, out geom!)) continue;
-                    } else continue;
-                };
-                var placement = new MapModelPlacement(geom, VecToXna(p.Position), VecToXna(p.Rotation), VecToXna(p.Scale));
-                if (p.ModelName.StartsWith("m")) placement.transform = Matrix.CreateTranslation(new Vector3(geom.bbMin.X, p.Position.Y - geom.bbMin.Y, -geom.bbMax.Z));
-                //placement.transform = Matrix.CreateTranslation(new Vector3(p.Position.X + 28, 0, p.Position.Z - 58));// * Matrix.CreateRotationX(-3*MathHelper.ToRadians(p.Rotation.Y));
-                placements.Add(placement);
-                Program.progress.CurrentIndex++;
-            }
-            foreach (var p in msb.Parts.ConnectCollisions) {
-                MapModel geom;
-                if (Regex.IsMatch(p.Name, @"^m\d\d\d\d\d\d")) {
-                    if (!geometry.TryGetValue(p.Name[..7], out geom!)) continue;
-                } else if (Regex.IsMatch(p.Name, @"^AEG\d\d\d_\d\d\d")) {
-                    if (!geometry.TryGetValue(p.Name[..10], out geom!)) continue;
-                } else if (Regex.IsMatch(p.ModelName, @"^m\d\d\d\d\d\d\d\d")) {
-                    if (!geometry.TryGetValue(p.ModelName[..9], out geom!)) continue;
-                } else {
-                    var m = Regex.Match(p.Name, @".*(AEG\d\d\d_\d\d\d).*");
-                    if (m.Success) {
-                        if (!geometry.TryGetValue(m.Groups[1].Value, out geom!)) continue;
-                    } else continue;
-                };
-                var placement = new MapModelPlacement(geom, new Vector3(geom.bbMin.X, p.Position.Y - geom.bbMin.Y, p.Position.Z * 2 - geom.bbMin.Z), VecToXna(p.Rotation), VecToXna(p.Scale));
-                if (p.ModelName.StartsWith("m")) placement.transform = Matrix.CreateTranslation(new Vector3(geom.bbMin.X, p.Position.Y - geom.bbMin.Y, -geom.bbMax.Z)) * Matrix.CreateScale(VecToXna(p.Scale));
-                //placement.transform = Matrix.CreateTranslation(new Vector3(p.Position.X + 28, 0, p.Position.Z - 58));// * Matrix.CreateRotationX(-3*MathHelper.ToRadians(p.Rotation.Y));
-                placements.Add(placement);
-                Program.progress.CurrentIndex++;
-            }
-            foreach (var p in msb.Parts.Unk1s) {
-                MapModel geom;
-                if (Regex.IsMatch(p.Name, @"^m\d\d\d\d\d\d")) {
-                    if (!geometry.TryGetValue(p.Name[..7], out geom!)) continue;
-                } else if (Regex.IsMatch(p.Name, @"^AEG\d\d\d_\d\d\d")) {
-                    if (!geometry.TryGetValue(p.Name[..10], out geom!)) continue;
-                } else if (Regex.IsMatch(p.Name, @"^m\d\d\d\d\d\d\d\d")) {
-                    if (!geometry.TryGetValue(p.Name[..9], out geom!)) continue;
-                } else {
-                    var m = Regex.Match(p.Name, @".*(AEG\d\d\d_\d\d\d).*");
-                    if (m.Success) {
-                        if (!geometry.TryGetValue(m.Groups[1].Value, out geom!)) continue;
-                    } else continue;
-                };
-                placements.Add(new MapModelPlacement(geom, VecToXna(p.Position), VecToXna(p.Rotation), VecToXna(p.Scale)));
-                Program.progress.CurrentIndex++;
-            }*/
             Program.progress.Finish();
+        }
+
+        public static Vector3 PosVecToXna(System.Numerics.Vector3 pos)
+        {
+            return new Vector3(pos.X, pos.Z, pos.Y);
         }
 
         public static Vector3 VecToXna(System.Numerics.Vector3 v)
         {
-            return new Vector3(v.X, v.Y, v.Z);
+            return new Vector3(v.X, v.Z, v.Y);
         }
     }
 }

@@ -13,6 +13,14 @@ namespace ERMapViewer
     {
         public VertexPositionNormalTexture[] triangleList;
         public int numTriangles;
+        private VertexBuffer? vertexBuffer;
+        public VertexBuffer GetVertexBuffer(GraphicsDevice g)
+        {
+            if (vertexBuffer != null) return vertexBuffer;
+            vertexBuffer = new VertexBuffer(g, VertexPositionNormalTexture.VertexDeclaration, triangleList.Length, BufferUsage.WriteOnly);
+            vertexBuffer.SetData(triangleList);
+            return vertexBuffer;
+        }
         public MapMesh(VertexPositionNormalTexture[] triangleList, int numTriangles)
         {
             this.triangleList = triangleList;
@@ -30,13 +38,15 @@ namespace ERMapViewer
         public MapMesh lodMin;
         public float lodMaxDist;
         public float lodMedDist;
+        public float bbDiag;
+        public int totalTriangles;
         public MapModel(FLVER2 flver, string name)
         {
             this.name = name;
             var tmp = flver.Header.BoundingBoxMin;
-            bbMin = new Vector3(tmp.X, tmp.Y, tmp.Z);
+            bbMin = new Vector3(tmp.X, tmp.Z, tmp.Y);
             tmp = flver.Header.BoundingBoxMax;
-            bbMax = new Vector3(tmp.X, tmp.Y, tmp.Z);
+            bbMax = new Vector3(tmp.X, tmp.Z, tmp.Y);
             bb = new BoundingBox(bbMin, bbMax);
             List<VertexPositionNormalTexture> lodMaxAns = new();
             int lodMaxTris = 0;
@@ -59,6 +69,7 @@ namespace ERMapViewer
                     }
                     var triList = faceSet.Triangulate(true);
                     for (int i = 0; i < triList.Count - 2; i+=3) {
+                        totalTriangles++;
                         tris++;
                         ans.Add(VertToXna(verts[triList[i]]));
                         ans.Add(VertToXna(verts[triList[i+1]]));
@@ -69,7 +80,7 @@ namespace ERMapViewer
             lodMin = new MapMesh(lodMinAns.ToArray(), lodMinTris);
             lodMed = new MapMesh(lodMedAns.ToArray(), lodMedTris);
             lodMax = new MapMesh(lodMaxAns.ToArray(), lodMaxTris);
-            float bbDiag = (bbMax - bbMin).Length();
+            bbDiag = (bbMax - bbMin).Length();
             if (lodMinTris == 0) lodMedDist = float.PositiveInfinity;
             else lodMedDist = bbDiag * 5;
             if (lodMedTris == 0) lodMaxDist = lodMedDist;
@@ -90,8 +101,8 @@ namespace ERMapViewer
         public static VertexPositionNormalTexture VertToXna(FLVER.Vertex v)
         {
             return new VertexPositionNormalTexture(
-                new Microsoft.Xna.Framework.Vector3(v.Position.X, v.Position.Y, v.Position.Z),
-                new Microsoft.Xna.Framework.Vector3(v.Normal.X, v.Normal.Y, v.Normal.Z),
+                new Microsoft.Xna.Framework.Vector3(v.Position.X, v.Position.Z, v.Position.Y),
+                new Microsoft.Xna.Framework.Vector3(v.Normal.X, v.Normal.Z, v.Normal.Y),
                 Microsoft.Xna.Framework.Vector2.Zero
             );
         }

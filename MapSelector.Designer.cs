@@ -1,6 +1,6 @@
 ﻿namespace ERMapViewer
 {
-    partial class Form1
+    partial class MapSelector
     {
         /// <summary>
         ///  Required designer variable.

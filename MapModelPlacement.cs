@@ -25,7 +25,7 @@ namespace ERMapViewer
             this.scale = scale;
             this.name = name;
             //transform = Matrix.CreateTranslation(position);
-            transform = Matrix.CreateScale(scale) * Matrix.CreateRotationX(MathHelper.ToRadians(rotation.X)) * Matrix.CreateRotationZ(MathHelper.ToRadians(rotation.Z)) * Matrix.CreateRotationY(MathHelper.ToRadians(rotation.Y)) * Matrix.CreateTranslation(position);
+            transform = Matrix.CreateScale(scale) * Matrix.CreateRotationX(-MathHelper.ToRadians(rotation.X)) * Matrix.CreateRotationY(-MathHelper.ToRadians(rotation.Y)) * Matrix.CreateRotationZ(-MathHelper.ToRadians(rotation.Z)) * Matrix.CreateTranslation(position);
             /*var bbMin = Vector4.Transform(model.bbMin, transform);
             var bbMax = Vector4.Transform(model.bbMax, transform);
             bbMin /= bbMin.W;
@@ -44,9 +44,13 @@ namespace ERMapViewer
             bb = new BoundingBox(bbMin, bbMax);
         }
 
-        public MapMesh GetLod(Vector3 cameraPos)
+        public MapMesh? GetLod(Vector3 cameraPos, bool highPerfMode)
         {
             float cameraDist = (cameraPos - bbCenter).Length();
+            if (highPerfMode) {
+                if (cameraDist > model.bbDiag * 5) return null;
+                else return model.GetLod(float.MaxValue);
+            }
             return model.GetLod(cameraDist);
         }
     }

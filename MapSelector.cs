@@ -3,11 +3,13 @@ using System.Diagnostics;
 
 namespace ERMapViewer
 {
-    public partial class Form1 : Form
+    public partial class MapSelector : Form
     {
         MonoViewer? viewer = null;
         string folder = @"\\WyattServer\Ben\EldenRing";
-        public Form1()
+        static Thread? monoThread;
+        static bool loading = false;
+        public MapSelector()
         {
             InitializeComponent();
             Program.progress = new DelegateProgressIndicator("", s => status.Invoke(() => status.Text = s));
@@ -15,6 +17,8 @@ namespace ERMapViewer
             msbDgv.AutoGenerateColumns = false;
             msbDgv.DataSource = msbs;
             msbDgv.Columns[0].DataPropertyName = "Name";
+            SettingsWindow.Instance = new SettingsWindow();
+            SettingsWindow.Instance.Show();
         }
 
         BindingList<MsbWrapper> msbs = new();
@@ -34,6 +38,8 @@ namespace ERMapViewer
 
         private void msbDgv_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
+            if (loading) return;
+            loading = true;
             new Thread(() => {
                 var msb = msbDgv.Rows[e.RowIndex].DataBoundItem as MsbWrapper;
                 Thread.CurrentThread.IsBackground = true;
@@ -42,10 +48,13 @@ namespace ERMapViewer
                     return;
                 }
                 var map = new Map(folder, msb.Msb);
-                if (viewer != null) {
+                loading = false;
+                SettingsWindow.Instance.Invoke(() => SettingsWindow.Instance.CurrentMap = msb.Name);
+                if (viewer != null && monoThread != null && monoThread.IsAlive) {
                     viewer.nextMap = map;
                     return;
                 }
+                monoThread = Thread.CurrentThread;
                 viewer = new MonoViewer(map);
                 viewer.Run();
             }).Start();

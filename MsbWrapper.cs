@@ -25,6 +25,7 @@ namespace ERMapViewer
         public MsbWrapper(string path, string name)
         {
             Name = name;
+            if (MapNames.Names.TryGetValue(name, out var nameStr)) Name = $"{name} ({nameStr})";
             Path = path;
             this._msb = null;
         }
