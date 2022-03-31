@@ -13,6 +13,14 @@ namespace ERMapViewer
         public VertexPositionNormalTexture[] vertices;
         public VertexPositionNormalTexture[] reverseChiralityVertices;
         public int numTriangles;
+        private VertexBuffer? vertexBuffer;
+        public VertexBuffer GetVertexBuffer(GraphicsDevice g)
+        {
+            if (vertexBuffer != null) return vertexBuffer;
+            vertexBuffer = new VertexBuffer(g, VertexPositionNormalTexture.VertexDeclaration, vertices.Length, BufferUsage.WriteOnly);
+            vertexBuffer.SetData(vertices);
+            return vertexBuffer;
+        }
         public SimpleMesh(VertexPositionNormalTexture[] vertices, int numTriangles)
         {
             this.vertices = vertices;

@@ -14,6 +14,15 @@ namespace ERMapViewer
     {
         public static SettingsWindow Instance;
 
+        protected override CreateParams CreateParams
+        {
+            get {
+                CreateParams cp = base.CreateParams;
+                cp.Style &= ~0x80000;
+                return cp;
+            }
+        }
+
         public string CurrentMap
         {
             get { return currentMapControl.Text; }
@@ -199,6 +208,7 @@ namespace ERMapViewer
         public SettingsWindow()
         {
             InitializeComponent();
+            Program.progress = new DelegateProgressIndicator("", s => status.Invoke(() => status.Text = s));
             ShowRegions = true;
             CameraSpeed = 1;
             SelectingRegions = true;

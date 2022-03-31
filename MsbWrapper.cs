@@ -10,23 +10,25 @@ namespace ERMapViewer
     internal class MsbWrapper : IComparable<MsbWrapper>
     {
         public string Name { get; }
-        public string Path { get; }
+        public BHD5.FileHeader Header { get; }
 
         private MSBE? _msb;
         public MSBE Msb
         {
             get {
                 if (_msb == null) {
-                    _msb = MSBE.Read(Path);
+                    var data = Header.ReadFile(Program.data2Bdt);
+                    var decompressed = DCX.Decompress(data);
+                    _msb = MSBE.Read(decompressed);
                 }
                 return _msb;
             }
         }
-        public MsbWrapper(string path, string name)
+        public MsbWrapper(BHD5.FileHeader header, string name)
         {
             Name = name;
             if (MapNames.Names.TryGetValue(name, out var nameStr)) Name = $"{name} ({nameStr})";
-            Path = path;
+            Header = header;
             this._msb = null;
         }
         public int CompareTo(MsbWrapper? other) => Name.CompareTo(other?.Name);

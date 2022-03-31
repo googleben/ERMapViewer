@@ -434,7 +434,8 @@ Selecetd object triangles: {selectedObj.model.lodMax.numTriangles + selectedObj.
                         effect.World = m.transform;
                         foreach (var pass in effect.CurrentTechnique.Passes) {
                             pass.Apply();
-                            GraphicsDevice.DrawUserPrimitives(PrimitiveType.TriangleList, inside ? m.mesh.reverseChiralityVertices : m.mesh.vertices, 0, m.mesh.numTriangles);
+                            GraphicsDevice.SetVertexBuffer(m.mesh.GetVertexBuffer(GraphicsDevice));
+                            GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, m.mesh.numTriangles);
                         }
                     }
                     if (s) effect.DiffuseColor = new Vector3(1, 1, 0);
@@ -454,7 +455,9 @@ Selecetd object triangles: {selectedObj.model.lodMax.numTriangles + selectedObj.
                         bool inside = m.bb.Contains(cameraPos) != ContainmentType.Disjoint;
                         effect.World = m.transform;
                         foreach (var pass in effect.CurrentTechnique.Passes) {
-                            pass.Apply(); GraphicsDevice.DrawUserPrimitives(PrimitiveType.TriangleList, inside ? m.mesh.reverseChiralityVertices : m.mesh.vertices, 0, m.mesh.numTriangles);
+                            pass.Apply();
+                            GraphicsDevice.SetVertexBuffer(m.mesh.GetVertexBuffer(GraphicsDevice));
+                            GraphicsDevice.DrawPrimitives(PrimitiveType.TriangleList, 0, m.mesh.numTriangles);
                         }
                     }
                     if (s) effect.DiffuseColor = new Vector3(1, 1, 0);

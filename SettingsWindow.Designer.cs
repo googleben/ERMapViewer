@@ -61,11 +61,12 @@
             this.selectionInformationControl = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.showFpsControl = new System.Windows.Forms.CheckBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.currentMapControl = new System.Windows.Forms.Label();
-            this.showFpsControl = new System.Windows.Forms.CheckBox();
+            this.status = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.cameraSpeedControl)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -398,6 +399,16 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Basic Settings";
             // 
+            // showFpsControl
+            // 
+            this.showFpsControl.AutoSize = true;
+            this.showFpsControl.Location = new System.Drawing.Point(6, 173);
+            this.showFpsControl.Name = "showFpsControl";
+            this.showFpsControl.Size = new System.Drawing.Size(77, 19);
+            this.showFpsControl.TabIndex = 7;
+            this.showFpsControl.Text = "Show FPS";
+            this.showFpsControl.UseVisualStyleBackColor = true;
+            // 
             // groupBox2
             // 
             this.groupBox2.Controls.Add(this.button2);
@@ -460,26 +471,26 @@
             this.currentMapControl.TabIndex = 34;
             this.currentMapControl.Text = "No Map Selected";
             // 
-            // showFpsControl
+            // status
             // 
-            this.showFpsControl.AutoSize = true;
-            this.showFpsControl.Location = new System.Drawing.Point(6, 173);
-            this.showFpsControl.Name = "showFpsControl";
-            this.showFpsControl.Size = new System.Drawing.Size(77, 19);
-            this.showFpsControl.TabIndex = 7;
-            this.showFpsControl.Text = "Show FPS";
-            this.showFpsControl.UseVisualStyleBackColor = true;
+            this.status.Location = new System.Drawing.Point(12, 544);
+            this.status.Name = "status";
+            this.status.ReadOnly = true;
+            this.status.Size = new System.Drawing.Size(625, 23);
+            this.status.TabIndex = 35;
             // 
             // SettingsWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(651, 550);
+            this.ClientSize = new System.Drawing.Size(651, 574);
+            this.Controls.Add(this.status);
             this.Controls.Add(this.currentMapControl);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.selectionInformationControl);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.MaximizeBox = false;
             this.Name = "SettingsWindow";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
@@ -534,5 +545,6 @@
         private Button button1;
         private CheckBox selectEmptyObjectsControl;
         private CheckBox showFpsControl;
+        private TextBox status;
     }
 }

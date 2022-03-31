@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ERMapViewer
 {
-    internal class MapMesh
+    internal class MapMesh : IDisposable
     {
         public VertexPositionNormalTexture[] triangleList;
         public int numTriangles;
@@ -21,13 +21,19 @@ namespace ERMapViewer
             vertexBuffer.SetData(triangleList);
             return vertexBuffer;
         }
+
+        public void Dispose()
+        {
+            vertexBuffer?.Dispose();
+        }
+
         public MapMesh(VertexPositionNormalTexture[] triangleList, int numTriangles)
         {
             this.triangleList = triangleList;
             this.numTriangles = numTriangles;
         }
     }
-    internal class MapModel
+    internal class MapModel : IDisposable
     {
         public Vector3 bbMin;
         public Vector3 bbMax;
@@ -105,6 +111,13 @@ namespace ERMapViewer
                 new Microsoft.Xna.Framework.Vector3(v.Normal.X, v.Normal.Z, v.Normal.Y),
                 Microsoft.Xna.Framework.Vector2.Zero
             );
+        }
+
+        public void Dispose()
+        {
+            lodMin.Dispose();
+            lodMed.Dispose();
+            lodMax.Dispose();
         }
     }
 }

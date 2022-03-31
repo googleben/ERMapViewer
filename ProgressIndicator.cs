@@ -34,7 +34,16 @@ namespace ERMapViewer
             }
         }
         public virtual bool IsTaskIndexed { get; set; }
-        public virtual string TaskName { get; set; }
+        protected string taskName;
+        public virtual string TaskName { 
+            get {
+                return taskName;
+            }
+            set {
+                taskName = value;
+                UpdateString();
+            }
+        }
         protected long perUpdate;
 
         protected abstract void UpdateString(string message);
@@ -58,7 +67,7 @@ namespace ERMapViewer
         }
         public ProgressIndicator(string taskName)
         {
-            TaskName = taskName;
+            this.taskName = taskName;
         }
     }
 

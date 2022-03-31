@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace ERMapViewer
 {
-    internal class Map
+    internal class Map : IDisposable
     {
         public Dictionary<string, MapModel> geometry;
         public MSBE msb;
@@ -44,13 +44,22 @@ namespace ERMapViewer
                 if (!pieceNames.Contains(mp.Name)) continue;
                 //firstPart is format "mxx_xx_xx_xx"
                 var firstPart = mp.SibPath[@"N:\GR\data\Model\map\".Length..][..12];
+                var bucket = firstPart[..3];
                 //secondPart is format "xxxxxx"
                 var secondPart = mp.Name[1..];
                 //mxx_xx_xx_xx_xxxxxx
                 var fullName = firstPart + "_" + secondPart;
-                var fileName = Path.Combine(mapGeomFolder, firstPart, fullName, "Model", fullName+".flver");
-                if (!File.Exists(fileName)) continue;
-                var flver = FLVER2.Read(fileName);
+                var fileName = $"/map/{bucket}/{firstPart}/{fullName}.mapbnd.dcx";
+                var bnd = Program.ReadBnd(Program.data2Bhd, Program.data2Bdt, fileName);
+                if (bnd == null) {
+                    Program.progress.CurrentIndex++;
+                    continue;
+                }
+                var flver = Program.ReadFlver(bnd, $"{secondPart}.flver");
+                if (flver == null) {
+                    Program.progress.CurrentIndex++;
+                    continue;
+                }
                 geometry[mp.Name] = new MapModel(flver, fileName);
                 Program.progress.CurrentIndex++;
             }
@@ -62,14 +71,22 @@ namespace ERMapViewer
                 if (!pieceNames.Contains(g.Name)) continue;
                 //start is format "AEGxxx"
                 var start = g.Name[..6];
-                var fileName = Path.Combine(geomFolder, start, g.Name, "sib", g.Name+".flver");
-                if (!File.Exists(fileName)) continue;
-                try {
-                    var flver = FLVER2.Read(fileName);
-                    geometry[g.Name] = new MapModel(flver, fileName);
-                } catch {
-                    Debug.WriteLine($"Couldn't read flver {fileName}");
+                var fileName = $"/asset/aeg/{start}/{g.Name}.geombnd.dcx";
+                var bnd = Program.ReadBnd(Program.data1Bhd, Program.data1Bdt, fileName.ToLower());
+                if (bnd == null) {
+                    Program.progress.CurrentIndex++;
+                    continue;
                 }
+                //try {
+                var flver = Program.ReadFlver(bnd, $"{g.Name}.flver");
+                if (flver == null) {
+                    Program.progress.CurrentIndex++;
+                    continue;
+                }
+                geometry[g.Name] = new MapModel(flver, fileName);
+                //} catch {
+                //    Debug.WriteLine($"Couldn't read flver {fileName}");
+                //}
                 Program.progress.CurrentIndex++;
             }
             placements = new List<MapModelPlacement>();
@@ -103,6 +120,15 @@ namespace ERMapViewer
         public static Vector3 VecToXna(System.Numerics.Vector3 v)
         {
             return new Vector3(v.X, v.Z, v.Y);
+        }
+
+        public void Dispose()
+        {
+            this.placements.Clear();
+            this.regions.Clear();
+            foreach (var model in geometry.Values) {
+                model.Dispose();
+            }
         }
     }
 }
